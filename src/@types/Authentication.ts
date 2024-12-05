@@ -1,7 +1,6 @@
 export interface Authentication {
-  userID: string
-  name: string
+  full_name: string
   email: string
-  avatar: string
-  role: string
+  picture: string
+  user_type: string
 }

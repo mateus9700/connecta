@@ -10,9 +10,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { toast } from 'sonner'
 import { useState } from 'react'
-import { api } from '@/utils/api'
-import Cookies from 'js-cookie'
-import { ConfirmationModal } from './confirmation-modal'
 
 const becomeDoneeSchema = z.object({
   telephone: z.string().regex(/^\(\d{2}\)\s\d{4,5}-\d{4}$/, {
@@ -21,53 +18,32 @@ const becomeDoneeSchema = z.object({
   address: z
     .string()
     .min(10, { message: 'O endereço deve ter pelo menos 10 caracteres.' }),
-  request: z.string().min(180, {
+  request_description: z.string().min(180, {
     message:
       'O motivo deve ter pelo menos 180 caracteres. Explique sua situação.',
   }),
 })
 type BecomeDoneeSchema = z.infer<typeof becomeDoneeSchema>
 
-interface BecomeDoneeModalProps {
-  doneeRequested?: boolean
-}
-
-export function BecomeDoneeModal({ doneeRequested }: BecomeDoneeModalProps) {
+export function BecomeDoneeModal() {
   const [isOpenModal, setIsOpenModal] = useState(false)
 
   const {
     handleSubmit,
     register,
     formState: { isSubmitting, errors },
-    reset,
   } = useForm<BecomeDoneeSchema>({
     resolver: zodResolver(becomeDoneeSchema),
   })
 
-  async function handleRequestDoneeRole(data: BecomeDoneeSchema) {
-    const userCookie = Cookies.get('user')
+  function handleRequestDoneeRole(data: BecomeDoneeSchema) {
+    console.log(data)
 
-    if (!userCookie) return
+    setIsOpenModal(false)
 
-    toast.promise(
-      async () =>
-        await fetch(`${api}/users/donee-request`, {
-          method: 'POST',
-          headers: {
-            User: userCookie,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        }),
-      {
-        success: () => {
-          setIsOpenModal(false)
-          reset()
-
-          return 'Sua solicitação foi enviada com sucesso para ser analisada. Aguarde a resposta.'
-        },
-        error: 'Erro ao solicitar função de donatário. Tente novamente.',
-      },
+    // testar o toast.promise quando usar request
+    toast.success(
+      'Sua solicitação foi enviada com sucesso para ser analisada. Aguarde a resposta.',
     )
   }
 
@@ -76,7 +52,6 @@ export function BecomeDoneeModal({ doneeRequested }: BecomeDoneeModalProps) {
       <Dialog.Trigger asChild>
         <Button
           size="full"
-          disabled={doneeRequested}
           onClick={() => setIsOpenModal(!isOpenModal)}
           className="md:w-fit lg:w-full"
         >
@@ -111,7 +86,10 @@ export function BecomeDoneeModal({ doneeRequested }: BecomeDoneeModalProps) {
             </Dialog.Description>
           </header>
 
-          <form className="flex h-full flex-col gap-5">
+          <form
+            onSubmit={handleSubmit(handleRequestDoneeRole)}
+            className="flex h-full flex-col gap-5"
+          >
             <Input
               title="Telefone"
               mask="(99) 99999-9999"
@@ -125,23 +103,16 @@ export function BecomeDoneeModal({ doneeRequested }: BecomeDoneeModalProps) {
             />
             <TextArea
               title="Motivo da solicitação"
-              {...register('request')}
-              errorMessage={errors.request?.message}
+              {...register('request_description')}
+              errorMessage={errors.request_description?.message}
             />
 
             <div className="mt-auto h-px w-full bg-zinc-400" />
 
-            <ConfirmationModal
-              title="Enviar Solicitação de Donatário"
-              description="Deseja enviar sua solicitação para se tornar donatário? Aguarde a análise após o envio."
-              disabled={isSubmitting || doneeRequested}
-              onConfirm={() => handleSubmit(handleRequestDoneeRole)()}
-            >
-              <Button className="ml-auto">
-                <span>Enviar solicitação</span>
-                <Send className="size-5 shrink-0" />
-              </Button>
-            </ConfirmationModal>
+            <Button className="ml-auto" type="submit" disabled={isSubmitting}>
+              <span>Enviar solicitação</span>
+              <Send className="size-5 shrink-0" />
+            </Button>
           </form>
         </Dialog.Content>
       </Dialog.Portal>

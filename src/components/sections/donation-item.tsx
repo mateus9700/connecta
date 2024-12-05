@@ -3,23 +3,16 @@
 import { useState } from 'react'
 import { Checkbox } from '../checkbox'
 import { twMerge } from 'tailwind-merge'
-import { CampaignItem } from '@/@types/Campaign'
-import { CheckedState } from '@radix-ui/react-checkbox'
+import { CampaignItem } from '@/@types/CampaignItem'
 
 interface DonationItemProps {
   item: CampaignItem
-  onItemToList: (item: CampaignItem) => void
 }
 
-export function DonationItem({ item, onItemToList }: DonationItemProps) {
+export function DonationItem({ item }: DonationItemProps) {
   const [checked, setChecked] = useState<boolean | 'indeterminate'>(
     item.status === 'concluído',
   )
-
-  function handleCheck(checked: CheckedState) {
-    onItemToList(item)
-    setChecked(checked)
-  }
 
   return (
     <div
@@ -31,7 +24,7 @@ export function DonationItem({ item, onItemToList }: DonationItemProps) {
       <div className="flex min-w-48 flex-1 items-center gap-5">
         <Checkbox
           checked={checked}
-          onCheckedChange={(checked) => handleCheck(checked)}
+          onCheckedChange={(checked) => setChecked(checked)}
           disabled={item.status === 'concluído' || item.status === 'reservado'}
         />
         <span
@@ -46,7 +39,7 @@ export function DonationItem({ item, onItemToList }: DonationItemProps) {
           'min-w-24 text-center',
           item.status === 'concluído' && 'line-through',
         )}
-      >{`${item.goal - item.amount_donated} ${item.measure}`}</span>
+      >{`${item.goal} ${item.measure}`}</span>
 
       <span
         className={twMerge(

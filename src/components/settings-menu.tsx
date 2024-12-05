@@ -3,8 +3,6 @@
 import * as NavigationMenu from '@radix-ui/react-navigation-menu'
 import { LogOut, Menu, Settings } from 'lucide-react'
 import { Button } from './button'
-import Link from 'next/link'
-import { api } from '@/utils/api'
 
 interface SettingsMenuProps {
   isAuthenticated?: boolean
@@ -15,15 +13,15 @@ export function SettingsMenu({ isAuthenticated }: SettingsMenuProps) {
     <NavigationMenu.Root>
       <NavigationMenu.List>
         <NavigationMenu.Item className="relative flex">
-          <NavigationMenu.Trigger aria-label="menu">
+          <NavigationMenu.Trigger>
             {isAuthenticated ? (
               <>
-                <Settings className="hidden size-6 transition-colors hover:text-green-600 md:flex" />
+                <Settings className="hidden size-6 text-zinc-700 transition-colors hover:text-green-600 md:flex" />
 
-                <Menu className="flex size-6 transition-colors hover:text-green-600 md:hidden" />
+                <Menu className="flex size-6 text-zinc-700 transition-colors hover:text-green-600 md:hidden" />
               </>
             ) : (
-              <Menu className="flex size-6 transition-colors hover:text-green-600 md:hidden" />
+              <Menu className="flex size-6 text-zinc-700 transition-colors hover:text-green-600 md:hidden" />
             )}
           </NavigationMenu.Trigger>
 
@@ -43,19 +41,14 @@ export function SettingsMenu({ isAuthenticated }: SettingsMenuProps) {
             </NavigationMenu.Link>
 
             {isAuthenticated ? (
-              <Link
-                href={`${api}/logout`}
-                className="flex items-center gap-1.5 text-red-600 hover:text-red-700"
-              >
+              <button className="flex items-center gap-1.5 text-red-600 hover:text-red-700">
                 Encerrar sessão
                 <LogOut className="size-5 shrink-0" />
-              </Link>
+              </button>
             ) : (
-              <Link href={`${api}/login/google`} aria-label="Fazer login">
-                <Button variant="secondary">
-                  <span>Faça sua doação</span>
-                </Button>
-              </Link>
+              <Button variant="secondary">
+                <span>Faça sua doação</span>
+              </Button>
             )}
           </NavigationMenu.Content>
         </NavigationMenu.Item>
